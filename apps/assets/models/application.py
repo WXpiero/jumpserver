@@ -31,7 +31,7 @@ class Application(OrgModelMixin):
     system_user = models.ForeignKey(
         'assets.SystemUser', on_delete=models.CASCADE, verbose_name=_('System user')
     )
-    type = models.CharField(
+    app_type = models.CharField(
         max_length=128, choices=TYPE_CHOICES, verbose_name=_('Type')
     )
     params = JsonDictTextField(
