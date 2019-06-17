@@ -80,7 +80,14 @@ class EmailSettingForm(BaseForm):
     )
     EMAIL_HOST_PASSWORD = FormEncryptCharField(
         max_length=1024, label=_("SMTP password"), widget=forms.PasswordInput,
-        required=False, help_text=_("Some provider use token except password")
+        required=False,
+        help_text=_("Tips: Some provider use token except password")
+    )
+    EMAIL_FROM = forms.CharField(
+        max_length=128, label=_("Send user"), initial='', required=False,
+        help_text=_(
+            "Tips: Send mail account, default SMTP account as the send account"
+        )
     )
     EMAIL_USE_SSL = forms.BooleanField(
         label=_("Use SSL"), initial=False, required=False,
@@ -121,9 +128,9 @@ class LDAPSettingForm(BaseForm):
     )
     # AUTH_LDAP_GROUP_SEARCH_OU = CONFIG.AUTH_LDAP_GROUP_SEARCH_OU
     # AUTH_LDAP_GROUP_SEARCH_FILTER = CONFIG.AUTH_LDAP_GROUP_SEARCH_FILTER
-    AUTH_LDAP_START_TLS = forms.BooleanField(
-        label=_("Use SSL"), required=False
-    )
+    # AUTH_LDAP_START_TLS = forms.BooleanField(
+    #     label=_("Use SSL"), required=False
+    # )
     AUTH_LDAP = forms.BooleanField(label=_("Enable LDAP auth"), required=False)
 
 
@@ -147,7 +154,7 @@ class TerminalSettingForm(BaseForm):
         required=False, label=_("Public key auth")
     )
     TERMINAL_HEARTBEAT_INTERVAL = forms.IntegerField(
-        min_value=5, label=_("Heartbeat interval"),
+        min_value=5, max_value=99999, label=_("Heartbeat interval"),
         help_text=_("Units: seconds")
     )
     TERMINAL_ASSET_LIST_SORT_BY = forms.ChoiceField(
@@ -157,7 +164,7 @@ class TerminalSettingForm(BaseForm):
         choices=PAGE_SIZE_CHOICES, label=_("List page size"),
     )
     TERMINAL_SESSION_KEEP_DURATION = forms.IntegerField(
-        min_value=1, label=_("Session keep duration"),
+        min_value=1, max_value=99999, label=_("Session keep duration"),
         help_text=_("Units: days, Session, record, command will be delete "
                     "if more than duration, only in database")
     )
@@ -180,13 +187,19 @@ class SecuritySettingForm(BaseForm):
             'authentication (valid for all users, including administrators)'
         )
     )
+    # Execute commands for user
+    SECURITY_COMMAND_EXECUTION = forms.BooleanField(
+        required=False, label=_("Batch execute commands"),
+        help_text=_("Allow user batch execute commands")
+    )
     # limit login count
     SECURITY_LOGIN_LIMIT_COUNT = forms.IntegerField(
-        min_value=3, label=_("Limit the number of login failures")
+        min_value=3, max_value=99999,
+        label=_("Limit the number of login failures")
     )
     # limit login time
     SECURITY_LOGIN_LIMIT_TIME = forms.IntegerField(
-        min_value=5, label=_("No logon interval"),
+        min_value=5, max_value=99999, label=_("No logon interval"),
         help_text=_(
             "Tip: (unit/minute) if the user has failed to log in for a limited "
             "number of times, no login is allowed during this time interval."
@@ -194,7 +207,8 @@ class SecuritySettingForm(BaseForm):
     )
     # ssh max idle time
     SECURITY_MAX_IDLE_TIME = forms.IntegerField(
-        required=False, label=_("Connection max idle time"),
+        min_value=1, max_value=99999, required=False,
+        label=_("Connection max idle time"),
         help_text=_(
             'If idle time more than it, disconnect connection(only ssh now) '
             'Unit: minute'
@@ -202,8 +216,7 @@ class SecuritySettingForm(BaseForm):
     )
     # password expiration time
     SECURITY_PASSWORD_EXPIRATION_TIME = forms.IntegerField(
-        label=_("Password expiration time"),
-        min_value=1, max_value=99999,
+        min_value=1, max_value=99999, label=_("Password expiration time"),
         help_text=_(
             "Tip: (unit: day) "
             "If the user does not update the password during the time, "
@@ -214,7 +227,7 @@ class SecuritySettingForm(BaseForm):
     )
     # min length
     SECURITY_PASSWORD_MIN_LENGTH = forms.IntegerField(
-        min_value=6, label=_("Password minimum length"),
+        min_value=6, max_value=30, label=_("Password minimum length"),
     )
     # upper case
     SECURITY_PASSWORD_UPPER_CASE = forms.BooleanField(
@@ -241,4 +254,27 @@ class SecuritySettingForm(BaseForm):
         help_text=_('After opening, the user password changes '
                     'and resets must contain special characters')
     )
+
+
+class EmailContentSettingForm(BaseForm):
+    EMAIL_CUSTOM_USER_CREATED_SUBJECT = forms.CharField(
+        max_length=1024,  required=False, label=_("Create user email subject"),
+        help_text=_("Tips: When creating a user, send the subject of the email"
+                    " (eg:Create account successfully)")
+    )
+    EMAIL_CUSTOM_USER_CREATED_HONORIFIC = forms.CharField(
+        max_length=1024, required=False, label=_("Create user honorific"),
+        help_text=_("Tips: When creating a user, send the honorific of the "
+                    "email (eg:Hello)")
+    )
+    EMAIL_CUSTOM_USER_CREATED_BODY = forms.CharField(
+        max_length=4096, required=False, widget=forms.Textarea(),
+        label=_('Create user email content'),
+        help_text=_('Tips:When creating a user, send the content of the email')
+    )
+    EMAIL_CUSTOM_USER_CREATED_SIGNATURE = forms.CharField(
+        max_length=512, required=False, label=_("Signature"),
+        help_text=_("Tips: Email signature (eg:jumpserver)")
+    )
+
 
